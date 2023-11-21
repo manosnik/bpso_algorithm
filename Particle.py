@@ -8,7 +8,7 @@ from scipy.stats import bernoulli
 class Particle:
 
     def __init__(self, id, ff_code, bound_min, bound_max, number_of_decimals, omega_generator, c1_generator,
-                 c2_generator):
+                 c2_generator,mutation_mode, v_ones_max_percentage):
         # bound_min ,bound_max coulb be determined inside Particle but if it's done in  Swarm it's faster
 
         self.id = id
@@ -21,6 +21,9 @@ class Particle:
         self.c1_generator = c1_generator
         self.c2_generator = c2_generator
 
+        self.mutation_mode = mutation_mode
+        self.v_ones_max_percentage = v_ones_max_percentage
+
         self.fitness_value = None
         self.fitness_value_p_best = np.inf
 
@@ -29,7 +32,7 @@ class Particle:
 
         self.x = self.generate_random_bitstring(random_genarator=0.5)  # x is BitArray
         # print(f"first random pos {self.x.bin}")
-        self.v=self.generate_random_bitstring(random_genarator=0.5)
+        self.v = self.generate_random_bitstring(random_genarator=0.5)
 
         self.test_bitstring_in_bounds()
 
@@ -117,8 +120,22 @@ class Particle:
         return output_bitstring
 
     def upgrade_vel(self, g_best):
-        self.v = (self.generate_random_bitstring(self.omega_generator)& self.v) | (((self.x ^ g_best) & self.generate_random_bitstring(self.c2_generator)) | (
+        self.v = (self.generate_random_bitstring(self.omega_generator) & self.v) | (
+                ((self.x ^ g_best) & self.generate_random_bitstring(self.c2_generator)) | (
                 (self.x ^ self.p_best) & self.generate_random_bitstring(self.c1_generator)))
+        if(self.mutation_mode==1):
+            self.mutation()
+
+        return
+
+    def mutation(self):
+        v_ones_max_number = math.ceil(self.v_ones_max_percentage * self.bit_dim)
+        positions_of_ones = list(self.v.findall('0b1', bytealigned=0))
+        number_of_subs = len(positions_of_ones) - v_ones_max_number
+        if (number_of_subs > 0):
+            positions_of_subs = random.sample(positions_of_ones, number_of_subs)
+            self.v.invert(positions_of_subs)
+            print("mutation")
         return
 
     def upgrade_position(self):

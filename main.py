@@ -29,6 +29,13 @@ from timeit import default_timer as timer
 # print("Enter Generator for C2")
 # c2_generator = int(input())
 #
+# print("Mutation Mode: on->1 off->0")
+# mutation_mode = int(input())
+#
+# if(mutation_mode==1):
+#   print("Enter Max Percentage of ones for velocity")
+#   v_ones_max_percentage = int(input())
+#
 
 # θέλουμε και διαστασεις για τισ συναρτησεις κυμαινόμενων διαστάσεων και ανα θελει αποτελέσματα σε csv or latex
 
@@ -44,8 +51,8 @@ number_of_decimals = 5
 omega_generator = 0.7
 c1_generator = 0.6
 c2_generator = 0.6
-mutation_mode=1
-v_ones_max_percenage=0.3
+mutation_mode = 1
+v_ones_max_percentage = 0.2
 
 ###############################
 
@@ -66,6 +73,7 @@ for j in range(2):  # 2->Eggholder and Bukin6
         start = timer()
         algorithm = BinaryPso(size=swarm_size, ff_code=ff_code, number_of_decimals=number_of_decimals,
                               omega_generator=omega_generator, c1_generator=c1_generator, c2_generator=c2_generator,
+                              mutation_mode=mutation_mode, v_ones_max_percentage=v_ones_max_percentage,
                               algorithm_iterations=algorithm_iterations, file=results_file)
         results_time[i] = timer() - start
         results[i] = algorithm.swarm.gbest_value

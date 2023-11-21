@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Swarm:
-    def __init__(self, size, ff_code, number_of_decimals, omega_generator, c1_generator, c2_generator):
+    def __init__(self, size, ff_code, number_of_decimals, omega_generator, c1_generator, c2_generator,mutation_mode, v_ones_max_percentage):
 
         # self.bound_min = None
         self.size = size
@@ -14,6 +14,9 @@ class Swarm:
         self.c1_generator = c1_generator
         self.c2_generator = c2_generator
 
+        self.mutation_mode = mutation_mode
+        self.v_ones_max_percentage = v_ones_max_percentage
+
         self.population = []
         self.gbest_value = np.inf
 
@@ -21,7 +24,7 @@ class Swarm:
 
         for i in range(self.size):
             p = Particle(i, self.ff_code, self.bound_min, self.bound_max, self.number_of_decimals, self.omega_generator,
-                         self.c1_generator, self.c2_generator)
+                         self.c1_generator, self.c2_generator,self.mutation_mode,self.v_ones_max_percentage)
             self.population.append(p)
 
     def __str__(self):
