@@ -8,7 +8,7 @@ from scipy.stats import bernoulli
 class Particle:
 
     def __init__(self, id, ff_code, bound_min, bound_max, number_of_decimals, omega_generator, c1_generator,
-                 c2_generator,mutation_mode, v_ones_max_percentage):
+                 c2_generator, mutation_mode, v_ones_max_percentage):
         # bound_min ,bound_max coulb be determined inside Particle but if it's done in  Swarm it's faster
 
         self.id = id
@@ -28,6 +28,7 @@ class Particle:
         self.fitness_value_p_best = np.inf
 
         self.bit_dim = 0
+        self.real_dim = None
         self.compute_bit_dim()
 
         self.x = self.generate_random_bitstring(random_genarator=0.5)  # x is BitArray
@@ -43,11 +44,8 @@ class Particle:
                f"\tpbest:{self.p_best.bin}\t fitness_value_p_best:{self.fitness_value_p_best}"
 
     def compute_bit_dim(self):
-        if self.ff_code == 1:  # Eggholder
-            self.real_dim = 2
-        elif self.ff_code == 2:  # Burkin 6
-            self.real_dim = 2
 
+        self.real_dim = len(self.bound_min)
         for i in range(self.real_dim):
             float_space = self.bound_max[i] - self.bound_min[i]
             self.bit_dim += math.floor(math.log2(float_space * math.pow(10, self.number_of_decimals))) + 1
@@ -123,7 +121,7 @@ class Particle:
         self.v = (self.generate_random_bitstring(self.omega_generator) & self.v) | (
                 ((self.x ^ g_best) & self.generate_random_bitstring(self.c2_generator)) | (
                 (self.x ^ self.p_best) & self.generate_random_bitstring(self.c1_generator)))
-        if(self.mutation_mode==1):
+        if (self.mutation_mode == 1):
             self.mutation()
 
         return
@@ -135,7 +133,6 @@ class Particle:
         if (number_of_subs > 0):
             positions_of_subs = random.sample(positions_of_ones, number_of_subs)
             self.v.invert(positions_of_subs)
-            print("mutation")
         return
 
     def upgrade_position(self):
@@ -159,15 +156,220 @@ class Particle:
         elif self.ff_code == 2:  # Rastring
 
             d = len(self.bound_min)
-            sum = 0
+            sum_ = 0
             for i in range(d):
                 xi = self.float_position[i]
-                sum = sum + (xi ** 2 - 10 * math.cos(2 * math.pi * xi))
-            self.fitness_value = 10 * d + sum
+                sum_ = sum_ + (xi ** 2 - 10 * math.cos(2 * math.pi * xi))
+            self.fitness_value = 10 * d + sum_
 
-        # term1 = 100 * math.sqrt(abs(self.float_position[1] - 0.01 * self.float_position[0] ** 2))
-        # term2 = 0.01 * abs(self.float_position[0] + 10)
-        # self.fitness_value = term1 + term2
+        elif self.ff_code == 3:  # Ackley
+            a = 20
+            b = 0.2
+            c = 2 * math.pi
+            d = len(self.bound_min)
+            sum1 = 0
+            sum2 = 0
+            for i in range(d):
+                xi = self.float_position[i]
+                sum1 += xi ** 2
+                sum2 += math.cos(c * xi)
+            term1 = -a * math.exp(-b * math.sqrt(sum1 / d))
+            term2 = -math.exp(sum2 / d)
+
+            self.fitness_value = term1 + term2 + a + math.exp(1)
+
+        elif self.ff_code == 4:  # Rosenbrock
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d - 1):
+                new = 100 * (self.float_position[i + 1] - self.float_position[i] ** 2) ** 2 + (
+                        self.float_position[i] - 1) ** 2
+                sum_ = sum_ + new
+            self.fitness_value = sum_
+
+        elif self.ff_code == 5:  # Dropwave
+            frac1 = 1 + math.cos(12 * math.sqrt(self.float_position[0] ** 2 + self.float_position[1] ** 2))
+            frac2 = 0.5 * (self.float_position[0] ** 2 + self.float_position[1] ** 2) + 2
+
+            self.fitness_value = -frac1 / frac2
+
+
+        elif self.ff_code == 6:  # Bukin N.6
+            term1 = 100 * math.sqrt(abs(self.float_position[1] - 0.01 * self.float_position[0] ** 2))
+            term2 = 0.01 * abs(self.float_position[0] + 10)
+            self.fitness_value = term1 + term2
+
+        elif self.ff_code == 7:  # De Jong N.5
+            x1 = self.float_position[0]
+            x2 = self.float_position[1]
+            s = 0
+
+            A = np.zeros((2, 25))
+            a = np.array([-32, -16, 0, 16, 32])
+            A[0, :] = np.tile(a, 5)
+            ar = np.tile(a, 5).reshape(5, 5).T.flatten()
+            A[1, :] = ar
+
+            for ii in range(25):
+                a1i = A[0, ii]
+                a2i = A[1, ii]
+                term1 = ii + 1
+                term2 = (x1 - a1i) ** 6
+                term3 = (x2 - a2i) ** 6
+                new = 1 / (term1 + term2 + term3)
+                s += new
+
+            self.fitness_value = 1 / (0.002 + s)
+
+        elif self.ff_code == 8:  # Schwefel
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d):
+                sum_ = sum_ + self.float_position[i] * math.sin(math.sqrt(abs(self.float_position[i])))
+            self.fitness_value = 418.9829 * d - sum_
+
+        elif self.ff_code == 9:  # Cross-in-Tray
+            fact1 = math.sin(self.float_position[0]) * math.sin(self.float_position[1])
+            fact2 = math.exp(abs(100 - math.sqrt(self.float_position[0] ** 2 + self.float_position[1] ** 2) / math.pi))
+
+            self.fitness_value = -0.0001 * (abs(fact1 * fact2) + 1) ** 0.1
+
+        elif self.ff_code == 10:  # Holder Table
+            fact1 = math.sin(self.float_position[0]) * math.cos(self.float_position[1])
+            fact2 = math.exp(abs(1 - math.sqrt(self.float_position[0] ** 2 + self.float_position[1] ** 2) / math.pi))
+
+            self.fitness_value = -abs(fact1 * fact2)
+
+        elif self.ff_code == 11:  # Bohachevsky
+            term1 = self.float_position[0] ** 2
+            term2 = 2 * self.float_position[1] ** 2
+            term3 = -0.3 * math.cos(3 * math.pi * self.float_position[0])
+            term4 = -0.4 * math.cos(4 * math.pi * self.float_position[1])
+
+            self.fitness_value = term1 + term2 + term3 + term4 + 0.7
+
+        elif self.ff_code == 12:  # Griewank
+            d = len(self.bound_min)
+            sum_ = 0
+            prod = 1
+
+            for i in range(d):
+                sum_ = sum_ + self.float_position[i] ** 2 / 4000
+                prod = prod * math.cos(self.float_position[i] / math.sqrt(i + 1))
+
+            self.fitness_value = sum_ - prod + 1
+
+        elif self.ff_code == 13:  # Easom
+            fact1 = -math.cos(self.float_position[0]) * math.cos(self.float_position[1])
+            fact2 = math.exp(-(self.float_position[0] - math.pi) ** 2 - (self.float_position[1] - math.pi) ** 2)
+
+            self.fitness_value = fact1 * fact2
+
+        elif self.ff_code == 14:  # Dixon-Price
+            d = len(self.bound_min)
+            term1 = (self.float_position[0] - 1) ** 2
+            sum_ = 0
+
+            for i in range(1, d):
+                new = i * (2 * self.float_position[i] ** 2 - self.float_position[i - 1]) ** 2
+                sum_ += new
+
+            self.fitness_value = term1 + sum_
+
+        elif self.ff_code == 15:      #Six-Hump Camel
+            term1 = (4 - 2.1 * self.float_position[0] ** 2 + (self.float_position[0] ** 4) / 3) * self.float_position[0] ** 2
+            term2 = self.float_position[0] * self.float_position[1]
+            term3 = (-4 + 4 * self.float_position[1] ** 2) * self.float_position[1] ** 2
+
+            self.fitness_value  = term1 + term2 + term3
+
+        elif self.ff_code == 16:     # Gramacy & Lee Function
+            term1 = math.sin(10 * math.pi * self.float_position[0]) / (2 * self.float_position[0])
+            term2 = (self.float_position[0] - 1) ** 4
+
+            self.fitness_value = term1 + term2
+
+        elif self.ff_code ==17:        #Shubert
+            sum1 = 0
+            sum2 = 0
+
+            for i in range(1,6):
+                new1 = i * math.cos((i + 1) * self.float_position[0] + i)
+                new2 = i * math.cos((i + 1) * self.float_position[1] + i)
+                sum1 += new1
+                sum2 += new2
+
+            self.fitness_value = sum1 * sum2
+
+        elif self.ff_code == 18: # Langermann
+            m=5
+            d=2
+            c = np.array([1, 2, 5, 2, 3])
+            a = np.array([[3, 5], [5, 2], [2, 1], [1, 4], [7, 9]])
+            outer = 0
+            for ii in range(m):
+                inner = 0
+                for jj in range(d):
+                    xj = self.float_position[jj]
+                    aij = a[ii, jj]
+                    inner = inner + (xj - aij) ** 2
+                new = c[ii] * np.exp(-inner / np.pi) * np.cos(np.pi * inner)
+                outer = outer + new
+
+            self.fitness_value = outer
+
+        elif self.ff_code == 19:  # Schaffer N.2
+            fact1 = (math.sin(self.float_position[0] ** 2 - self.float_position[1] ** 2)) ** 2 - 0.5
+            fact2 = (1 + 0.001 * (self.float_position[0] ** 2 + self.float_position[1] ** 2)) ** 2
+
+            self.fitness_value = 0.5 + fact1 / fact2
+
+        elif self.ff_code == 20:  #Trid
+            d = len(self.bound_min)
+            sum1 = (self.float_position[0] - 1) ** 2
+            sum2 = 0
+
+            for i in range(1,d):
+                sum1 = sum1 + (self.float_position[i] - 1) ** 2
+                sum2 = sum2 + self.float_position[i] * self.float_position[i-1]
+
+            self.fitness_value = sum1 - sum2
+
+
+        elif self.ff_code == 21:  # Sphere
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d):
+                sum_ += self.float_position[i] ** 2
+
+            self.fitness_value = sum_
+
+        elif self.ff_code == 22:  # Sum Squares function
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d):
+                sum_ += i*self.float_position[i] ** 2
+
+            self.fitness_value = sum_
+
+
+        elif self.ff_code == 23:  # Sum of Different Powers function
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d):
+                sum_ += (abs(self.float_position[i])) ** (i+1)
+
+            self.fitness_value = sum_
+
+        elif self.ff_code == 24:  # Rotated Hyper-Ellipsoid
+            d = len(self.bound_min)
+            outer = 0
+            for i in range(d):
+                inner = 0
+                for j in range(i+1):
+                    inner += self.float_position[j] ** 2
+                outer += inner
+            self.fitness_value = outer
 
         return
 
