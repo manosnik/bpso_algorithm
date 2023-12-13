@@ -3,7 +3,7 @@ from Swarm import Swarm
 
 class BinaryPso:
     def __init__(self, size, ff_code, number_of_decimals, omega_generator, c1_generator, c2_generator,
-                 mutation_mode, v_ones_max_percentage, algorithm_iterations, file,dim_of_multidim_fun):
+                 mutation_mode, v_ones_max_percentage, algorithm_iterations, dim_of_multidim_fun):
         self.size = size
         self.ff_code = ff_code
         self.number_of_decimals = number_of_decimals
@@ -37,5 +37,3 @@ class BinaryPso:
             self.swarm.upgrade_vel_swarm()
             self.swarm.upgrade_position_swarm()
 
-        file.write(
-            f"best is {self.swarm.gbest_value} at {self.swarm.g_best.bin} or {self.swarm.g_best_float_position} found at iteration {self.iteration_of_gbest}\n")

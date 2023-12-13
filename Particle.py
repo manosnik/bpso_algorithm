@@ -276,24 +276,25 @@ class Particle:
 
             self.fitness_value = term1 + sum_
 
-        elif self.ff_code == 15:      #Six-Hump Camel
-            term1 = (4 - 2.1 * self.float_position[0] ** 2 + (self.float_position[0] ** 4) / 3) * self.float_position[0] ** 2
+        elif self.ff_code == 15:  # Six-Hump Camel
+            term1 = (4 - 2.1 * self.float_position[0] ** 2 + (self.float_position[0] ** 4) / 3) * self.float_position[
+                0] ** 2
             term2 = self.float_position[0] * self.float_position[1]
             term3 = (-4 + 4 * self.float_position[1] ** 2) * self.float_position[1] ** 2
 
-            self.fitness_value  = term1 + term2 + term3
+            self.fitness_value = term1 + term2 + term3
 
-        elif self.ff_code == 16:     # Gramacy & Lee Function
+        elif self.ff_code == 16:  # Gramacy & Lee Function
             term1 = math.sin(10 * math.pi * self.float_position[0]) / (2 * self.float_position[0])
             term2 = (self.float_position[0] - 1) ** 4
 
             self.fitness_value = term1 + term2
 
-        elif self.ff_code ==17:        #Shubert
+        elif self.ff_code == 17:  # Shubert
             sum1 = 0
             sum2 = 0
 
-            for i in range(1,6):
+            for i in range(1, 6):
                 new1 = i * math.cos((i + 1) * self.float_position[0] + i)
                 new2 = i * math.cos((i + 1) * self.float_position[1] + i)
                 sum1 += new1
@@ -301,9 +302,9 @@ class Particle:
 
             self.fitness_value = sum1 * sum2
 
-        elif self.ff_code == 18: # Langermann
-            m=5
-            d=2
+        elif self.ff_code == 18:  # Langermann
+            m = 5
+            d = 2
             c = np.array([1, 2, 5, 2, 3])
             a = np.array([[3, 5], [5, 2], [2, 1], [1, 4], [7, 9]])
             outer = 0
@@ -324,14 +325,14 @@ class Particle:
 
             self.fitness_value = 0.5 + fact1 / fact2
 
-        elif self.ff_code == 20:  #Trid
+        elif self.ff_code == 20:  # Trid
             d = len(self.bound_min)
             sum1 = (self.float_position[0] - 1) ** 2
             sum2 = 0
 
-            for i in range(1,d):
+            for i in range(1, d):
                 sum1 = sum1 + (self.float_position[i] - 1) ** 2
-                sum2 = sum2 + self.float_position[i] * self.float_position[i-1]
+                sum2 = sum2 + self.float_position[i] * self.float_position[i - 1]
 
             self.fitness_value = sum1 - sum2
 
@@ -348,7 +349,7 @@ class Particle:
             d = len(self.bound_min)
             sum_ = 0
             for i in range(d):
-                sum_ += i*self.float_position[i] ** 2
+                sum_ += i * self.float_position[i] ** 2
 
             self.fitness_value = sum_
 
@@ -357,7 +358,7 @@ class Particle:
             d = len(self.bound_min)
             sum_ = 0
             for i in range(d):
-                sum_ += (abs(self.float_position[i])) ** (i+1)
+                sum_ += (abs(self.float_position[i])) ** (i + 1)
 
             self.fitness_value = sum_
 
@@ -366,10 +367,144 @@ class Particle:
             outer = 0
             for i in range(d):
                 inner = 0
-                for j in range(i+1):
+                for j in range(i + 1):
                     inner += self.float_position[j] ** 2
                 outer += inner
             self.fitness_value = outer
+
+        elif self.ff_code == 25:  # Booth
+            term1 = (self.float_position[0] + 2 * self.float_position[1] - 7) ** 2
+            term2 = (2 * self.float_position[0] + self.float_position[1] - 5) ** 2
+
+            self.fitness_value = term1 + term2
+
+        elif self.ff_code == 26:  # Matyas
+            term1 = 0.26 * (self.float_position[0] ** 2 + self.float_position[1] ** 2)
+            term2 = -0.48 * self.float_position[0] * self.float_position[1]
+
+            self.fitness_value = term1 + term2
+
+
+        elif self.ff_code == 27:  # McCormick
+            term1 = math.sin(self.float_position[0] + self.float_position[1])
+            term2 = (self.float_position[0] - self.float_position[1]) ** 2
+            term3 = -1.5 * self.float_position[0]
+            term4 = 2.5 * self.float_position[1]
+
+            self.fitness_value = term1 + term2 + term3 + term4 + 1
+
+
+        elif self.ff_code == 28:  # Levy
+            d = len(self.bound_min)
+            w = np.empty(d)
+            for i in range(d):
+                w[i] = 1 + (self.float_position[i] - 1) / 4
+
+            term1 = (math.sin(math.pi * w[0])) ** 2
+            term3 = (w[d-1] - 1) ** 2 * (1 + (math.sin(2 * math.pi * w[d-1])) ** 2)
+
+            sum_ = 0
+            for i in range(d - 1):
+                new = (w[i] - 1) ** 2 * (1 + 10 * (math.sin(math.pi * w[i] + 1)) ** 2)
+                sum_ += new
+
+            self.fitness_value = term1 + sum_ + term3
+
+        elif self.ff_code == 29:  # Levy N.13
+
+            term1 = (math.sin(3 * math.pi * self.float_position[0])) ** 2
+            term2 = (self.float_position[0] - 1) ** 2 * (1 + (math.sin(3 * math.pi * self.float_position[1])) ** 2)
+            term3 = (self.float_position[1] - 1) ** 2 * (1 + (math.sin(2 * math.pi * self.float_position[1])) ** 2)
+
+            self.fitness_value = term1 + term2 + term3
+
+
+        elif self.ff_code == 30:  # Schaffer N.4
+            fact1 = (math.cos(math.sin(abs(self.float_position[0] ** 2 - self.float_position[1] ** 2)))) ** 2 - 0.5
+            fact2 = (1 + 0.001 * (self.float_position[0] ** 2 + self.float_position[1] ** 2)) ** 2
+
+            self.fitness_value = 0.5 + fact1 / fact2
+
+        elif self.ff_code == 31:  # Power Sum function
+            d=4
+            b=[8, 18, 44, 114]
+            outer = 0
+            for i in range(d):
+                inner = 0
+                for j in range(d):
+                    inner += self.float_position[i] ** (i+1)
+
+                outer = outer + (inner - b[i]) ** 2
+
+            self.fitness_value = outer
+
+        elif self.ff_code == 32:  # Zakharov
+            d = len(self.bound_min)
+            sum1 = 0
+            sum2 = 0
+            for i in range(d):
+                sum1 += self.float_position[i] ** 2
+                sum2 += 0.5 * (i+1) * self.float_position[i]
+
+            self.fitness_value = sum1 + sum2 ** 2 + sum2 ** 4
+
+        elif self.ff_code ==33:  #Three Hump Camel
+            term1 = 2 * self.float_position[0] ** 2
+            term2 = -1.05 * self.float_position[0] ** 4
+            term3 = self.float_position[0] ** 6 / 6
+            term4 = self.float_position[0] * self.float_position[1]
+            term5 = self.float_position[1] ** 2
+
+            self.fitness_value = term1 + term2 + term3 + term4 + term5
+
+        elif self.ff_code == 34: #Beale
+            term1 = (1.5 - self.float_position[0] + self.float_position[0] * self.float_position[1]) ** 2;
+            term2 = (2.25 - self.float_position[0] + self.float_position[0] * self.float_position[1] ** 2) ** 2
+            term3 = (2.625 - self.float_position[0] + self.float_position[0] * self.float_position[1] ** 3) ** 2
+
+            self.fitness_value = term1 + term2 + term3
+
+        elif self.ff_code == 35: #Branin
+            t = 1 / (8 * math.pi)
+            s = 10
+            r=6
+            c=5/math.pi
+            b=5.1/(4*math.pi**2)
+            a=1
+
+            term1 = a * (self.float_position[1] - b * self.float_position[0] ** 2 + c * self.float_position[0] - r) ** 2
+            term2 = s * (1 - t) * math.cos(self.float_position[0])
+
+            self.fitness_value = term1 + term2 + s
+
+
+        elif self.ff_code == 36: #Michalewicz
+            m=10
+            d=len(self.bound_min)
+            sum_=0
+
+            for i in range(d):
+                new=math.sin(self.float_position[i])* (math.sin((i+1)*self.float_position[i]**2/math.pi))**(2*m)
+                sum_ +=new
+
+            self.fitness_value=-sum_
+
+
+        elif self.ff_code == 37: #Colville
+            term1 = 100 * (self.float_position[0] ** 2 - self.float_position[1]) ** 2
+            term2 = (self.float_position[0] - 1) ** 2
+            term3 = (self.float_position[2] - 1) ** 2
+            term4 = 90 * (self.float_position[2] ** 2 - self.float_position[3]) ** 2
+            term5 = 10.1 * ((self.float_position[1] - 1) ** 2 + (self.float_position[3] - 1) ** 2)
+            term6 = 19.8 * (self.float_position[1] - 1) * (self.float_position[3] - 1)
+
+            self.fitness_value = term1 + term2 + term3 + term4 + term5 + term6
+
+
+
+
+
+
 
         return
 

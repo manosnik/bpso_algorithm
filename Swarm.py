@@ -1,5 +1,7 @@
 from Particle import Particle
 import numpy as np
+import math
+from concurrent.futures import ProcessPoolExecutor
 
 
 class Swarm:
@@ -36,6 +38,8 @@ class Swarm:
         print(f"gbest: {self.g_best.bin}\tgbest_fitness_value :{self.gbest_value}")
         return "-------------------------------------------------------------------------------------------------------------"
 
+
+    #TODO add glodal_min attribute
     def choose_ff(self):
         if self.ff_code == 1:
             self.ff_name = "Eggholder"
@@ -61,6 +65,7 @@ class Swarm:
             self.ff_name = "Bukin N.6"
             self.bound_min = [-15, -3]
             self.bound_max = [-5, 3]
+            self.global_min=[-10,1]
         elif self.ff_code == 7:
             self.ff_name = "De Jong N.5"
             self.bound_min = [-65.536, -65.536]
@@ -109,12 +114,12 @@ class Swarm:
             self.ff_name = "Langermann"
             self.bound_min = [0, 0]
             self.bound_max = [10, 10]
-        elif self.ff_code ==19:
-            self.ff_name= "Schaffer N.2"
+        elif self.ff_code == 19:
+            self.ff_name = "Schaffer N.2"
             self.bound_min = [-100, -100]
             self.bound_max = [100, 100]
         elif self.ff_code == 20:
-            self.ff_name="Trid"
+            self.ff_name = "Trid"
             self.bound_min = [-(self.dim_of_multidim_fun ** 2)] * self.dim_of_multidim_fun
             self.bound_max = [self.dim_of_multidim_fun ** 2] * self.dim_of_multidim_fun
         elif self.ff_code == 21:
@@ -133,8 +138,58 @@ class Swarm:
             self.ff_name = "Rotated Hyper-Ellipsoid"
             self.bound_min = [-65.536] * self.dim_of_multidim_fun
             self.bound_max = [65.536] * self.dim_of_multidim_fun
-
-
+        elif self.ff_code == 25:
+            self.ff_name = "Booth"
+            self.bound_min = [-10, -10]
+            self.bound_max = [10, 10]
+        elif self.ff_code == 26:
+            self.ff_name = "Matyas"
+            self.bound_min = [-10, -10]
+            self.bound_max = [10, 10]
+        elif self.ff_code == 27:
+            self.ff_name = "McCormick"
+            self.bound_min = [-1.5, -3]
+            self.bound_max = [4, 4]
+        elif self.ff_code == 28:
+            self.ff_name = "Levy"
+            self.bound_min = [-10] * self.dim_of_multidim_fun
+            self.bound_max = [10] * self.dim_of_multidim_fun
+        elif self.ff_code == 29:
+            self.ff_name = "Levy N.13"
+            self.bound_min = [-10, -10]
+            self.bound_max = [10, 10]
+        elif self.ff_code == 30:
+            self.ff_name = "Schaffer N.4"
+            self.bound_min = [-100, -100]
+            self.bound_max = [100, 100]
+        elif self.ff_code == 31:
+            self.ff_name = "Power Sum function"
+            self.bound_min = [0, 0, 0, 0]
+            self.bound_max = [4, 4, 4, 4]
+        elif self.ff_code == 32:
+            self.ff_name = "Zakharov"
+            self.bound_min = [-5] * self.dim_of_multidim_fun
+            self.bound_max = [10] * self.dim_of_multidim_fun
+        elif self.ff_code == 33:
+            self.ff_name = "Three-Hump Camel"
+            self.bound_min = [-5, -5]
+            self.bound_max = [5, 5]
+        elif self.ff_code == 34:
+            self.ff_name = "Beale"
+            self.bound_min = [-4.5, -4.5]
+            self.bound_max = [4.5, 4.5]
+        elif self.ff_code == 35:
+            self.ff_name = "Branin"
+            self.bound_min = [-5, 0]
+            self.bound_max = [0, 15]
+        elif self.ff_code == 36:
+            self.ff_name = "Michalewicz"
+            self.bound_min = [0] * self.dim_of_multidim_fun
+            self.bound_max = [math.pi] * self.dim_of_multidim_fun
+        elif self.ff_code == 37:
+            self.ff_name = "Colville"
+            self.bound_min = [-10, -10, -10, -10]
+            self.bound_max = [10, 10, 10, 10]
         return
 
     def upgrade_vel_swarm(self):
