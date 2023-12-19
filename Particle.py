@@ -9,7 +9,7 @@ class Particle:
 
     def __init__(self, id, ff_code, bound_min, bound_max, number_of_decimals, omega_generator, c1_generator,
                  c2_generator, mutation_mode, v_ones_max_percentage):
-        # bound_min ,bound_max coulb be determined inside Particle but if it's done in  Swarm it's faster
+        # bound_min ,bound_max could be determined inside Particle but if it's done in  Swarm it's faster
 
         self.id = id
         self.ff_code = ff_code
@@ -32,6 +32,7 @@ class Particle:
         self.compute_bit_dim()
 
         self.x = self.generate_random_bitstring(random_genarator=0.5)  # x is BitArray
+
         # print(f"first random pos {self.x.bin}")
         self.v = self.generate_random_bitstring(random_genarator=0.5)
 
@@ -121,23 +122,27 @@ class Particle:
         self.v = (self.generate_random_bitstring(self.omega_generator) & self.v) | (
                 ((self.x ^ g_best) & self.generate_random_bitstring(self.c2_generator)) | (
                 (self.x ^ self.p_best) & self.generate_random_bitstring(self.c1_generator)))
+        # print(f"ID {self.id} before mutation {self.v.bin}")
+
         if (self.mutation_mode == 1):
             self.mutation()
-
+        # print(f"ID {self.id} After mutation  {self.v.bin}")
         return
 
     def mutation(self):
         v_ones_max_number = math.ceil(self.v_ones_max_percentage * self.bit_dim)
-        positions_of_ones = list(self.v.findall('0b1', bytealigned=0))
+        positions_of_ones = list(self.v.findall('0b0', bytealigned=0))
         number_of_subs = len(positions_of_ones) - v_ones_max_number
         if (number_of_subs > 0):
             positions_of_subs = random.sample(positions_of_ones, number_of_subs)
             self.v.invert(positions_of_subs)
+            # print("Mutation used")
         return
 
     def upgrade_position(self):
         self.x = self.x ^ self.v
         self.test_bitstring_in_bounds()
+        # print(f"ID {self.id} Upgrade pos v {self.v.bin} and x {self.x.bin}")
         return
 
     def upgrade_pbest(self):
@@ -401,7 +406,7 @@ class Particle:
                 w[i] = 1 + (self.float_position[i] - 1) / 4
 
             term1 = (math.sin(math.pi * w[0])) ** 2
-            term3 = (w[d-1] - 1) ** 2 * (1 + (math.sin(2 * math.pi * w[d-1])) ** 2)
+            term3 = (w[d - 1] - 1) ** 2 * (1 + (math.sin(2 * math.pi * w[d - 1])) ** 2)
 
             sum_ = 0
             for i in range(d - 1):
@@ -426,13 +431,13 @@ class Particle:
             self.fitness_value = 0.5 + fact1 / fact2
 
         elif self.ff_code == 31:  # Power Sum function
-            d=4
-            b=[8, 18, 44, 114]
+            d = 4
+            b = [8, 18, 44, 114]
             outer = 0
             for i in range(d):
                 inner = 0
                 for j in range(d):
-                    inner += self.float_position[i] ** (i+1)
+                    inner += self.float_position[i] ** (i + 1)
 
                 outer = outer + (inner - b[i]) ** 2
 
@@ -444,11 +449,11 @@ class Particle:
             sum2 = 0
             for i in range(d):
                 sum1 += self.float_position[i] ** 2
-                sum2 += 0.5 * (i+1) * self.float_position[i]
+                sum2 += 0.5 * (i + 1) * self.float_position[i]
 
             self.fitness_value = sum1 + sum2 ** 2 + sum2 ** 4
 
-        elif self.ff_code ==33:  #Three Hump Camel
+        elif self.ff_code == 33:  # Three Hump Camel
             term1 = 2 * self.float_position[0] ** 2
             term2 = -1.05 * self.float_position[0] ** 4
             term3 = self.float_position[0] ** 6 / 6
@@ -457,20 +462,20 @@ class Particle:
 
             self.fitness_value = term1 + term2 + term3 + term4 + term5
 
-        elif self.ff_code == 34: #Beale
+        elif self.ff_code == 34:  # Beale
             term1 = (1.5 - self.float_position[0] + self.float_position[0] * self.float_position[1]) ** 2;
             term2 = (2.25 - self.float_position[0] + self.float_position[0] * self.float_position[1] ** 2) ** 2
             term3 = (2.625 - self.float_position[0] + self.float_position[0] * self.float_position[1] ** 3) ** 2
 
             self.fitness_value = term1 + term2 + term3
 
-        elif self.ff_code == 35: #Branin
+        elif self.ff_code == 35:  # Branin
             t = 1 / (8 * math.pi)
             s = 10
-            r=6
-            c=5/math.pi
-            b=5.1/(4*math.pi**2)
-            a=1
+            r = 6
+            c = 5 / math.pi
+            b = 5.1 / (4 * math.pi ** 2)
+            a = 1
 
             term1 = a * (self.float_position[1] - b * self.float_position[0] ** 2 + c * self.float_position[0] - r) ** 2
             term2 = s * (1 - t) * math.cos(self.float_position[0])
@@ -478,19 +483,20 @@ class Particle:
             self.fitness_value = term1 + term2 + s
 
 
-        elif self.ff_code == 36: #Michalewicz
-            m=10
-            d=len(self.bound_min)
-            sum_=0
+        elif self.ff_code == 36:  # Michalewicz
+            m = 10
+            d = len(self.bound_min)
+            sum_ = 0
 
             for i in range(d):
-                new=math.sin(self.float_position[i])* (math.sin((i+1)*self.float_position[i]**2/math.pi))**(2*m)
-                sum_ +=new
+                new = math.sin(self.float_position[i]) * (
+                    math.sin((i + 1) * self.float_position[i] ** 2 / math.pi)) ** (2 * m)
+                sum_ += new
 
-            self.fitness_value=-sum_
+            self.fitness_value = -sum_
 
 
-        elif self.ff_code == 37: #Colville
+        elif self.ff_code == 37:  # Colville
             term1 = 100 * (self.float_position[0] ** 2 - self.float_position[1]) ** 2
             term2 = (self.float_position[0] - 1) ** 2
             term3 = (self.float_position[2] - 1) ** 2
@@ -500,11 +506,143 @@ class Particle:
 
             self.fitness_value = term1 + term2 + term3 + term4 + term5 + term6
 
+        elif self.ff_code == 38:  # Shekel
+            m = 10
+            b = 0.1 * np.array([1, 2, 2, 4, 4, 6, 3, 7, 5, 5])
+            c = np.array([[4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
+                          [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
+                          [4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
+                          [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6]])
+
+            outer = 0
+            for i in range(m):
+                inner = 0
+                for j in range(4):
+                    inner += (self.float_position[j] - c[j][i]) ** 2
+                outer += 1 / (inner + b[i])
+
+            self.fitness_value = - outer
+
+        elif self.ff_code == 39:  # Styblinski-Tang
+            d = len(self.bound_min)
+            sum_ = 0
+            for i in range(d):
+                sum_ += self.float_position[i] ** 4 - 16 * self.float_position[i] ** 2 + 5 * self.float_position[i]
+
+            self.fitness_value = sum_ / 2
+
+        elif self.ff_code == 40:  # Powell
+            d = len(self.bound_min)
+            sum_ = 0
+
+            for i in range(1, int(d / 4) + 1):
+                term1 = (self.float_position[4 * i - 4] + 10 * self.float_position[4 * i - 3]) ** 2
+                term2 = 5 * (self.float_position[4 * i - 2] - self.float_position[4 * i - 1]) ** 2
+                term3 = (self.float_position[4 * i - 3] - 2 * self.float_position[4 * i - 2]) ** 4
+                term4 = 10 * (self.float_position[4 * i - 4] - self.float_position[4 * i - 1]) ** 4
+                sum_ += term1 + term2 + term3 + term4
+
+            self.fitness_value = sum_
+
+        elif self.ff_code == 41:  # Goldstein-Price
+            fact1a = (self.float_position[0] + self.float_position[1] + 1) ** 2
+            fact1b = 19 - 14 * self.float_position[0] + 3 * self.float_position[0] ** 2 - 14 * self.float_position[
+                1] + 6 * self.float_position[0] * self.float_position[1] + 3 * self.float_position[1] ** 2
+            fact1 = 1 + fact1a * fact1b
+
+            fact2a = (2 * self.float_position[0] - 3 * self.float_position[1]) ** 2
+            fact2b = 18 - 32 * self.float_position[0] + 12 * self.float_position[0] ** 2 + 48 * self.float_position[
+                1] - 36 * self.float_position[0] * self.float_position[1] + 27 * self.float_position[1] ** 2
+            fact2 = 30 + fact2a * fact2b
+
+            self.fitness_value = fact1 * fact2
+
+        elif self.ff_code == 42:  # Forrester
+            fact1 = (6 * self.float_position[0] - 2) ** 2
+            fact2 = math.sin(12 * self.float_position[0] - 4)
+
+            self.fitness_value = fact1 * fact2
+
+        elif self.ff_code == 43:  # Perm d,b
+            b = 0.5
+            d = len(self.bound_min)
+            outer = 0
+            for i in range(d):
+                inner = 0
+                for j in range(d):
+                    inner += ((j + 1) ** (i + 1) + b) * ((self.float_position[j] / (j + 1)) ** (i + 1) - 1)
+                outer += inner ** 2
+            self.fitness_value = outer
+
+        elif self.ff_code == 44:  # Perm 0,d,b
+            b = 10
+            d = len(self.bound_min)
+            outer = 0
+            for i in range(d):
+                inner = 0
+                for j in range(d):
+                    inner += ((j + 1) + b) * (self.float_position[j] ** (i + 1) - 1 / ((j + 1) ** (i + 1)))
+                outer += inner ** 2
+            self.fitness_value = outer
+
+        elif self.ff_code == 45:  # Hartmann 3-D
+            alpha = np.array([1.0, 1.2, 3.0, 3.2])
+            a = np.array([[3.0, 10, 30],
+                          [0.1, 10, 35],
+                          [3.0, 10, 30],
+                          [0.1, 10, 35]])
+            p = 10 ** (-4) * np.array([[3689, 1170, 2673],
+                                       [4699, 4387, 7470],
+                                       [1091, 8732, 5547],
+                                       [381, 5743, 8828]])
+
+            outer = 0
+            for i in range(4):
+                inner = 0
+                for j in range(3):
+                    inner += a[i, j] * (self.float_position[j] - p[i, j]) ** 2
+                outer += alpha[i] * np.exp(-inner)
+            self.fitness_value = -outer
+
+        elif self.ff_code == 46:  # Hartmann 4-D
+            alpha = np.array([1.0, 1.2, 3.0, 3.2])
+            a = np.array([[10, 3, 17, 3.5, 1.7, 8],
+                          [0.05, 10, 17, 0.1, 8, 14],
+                          [3, 3.5, 1.7, 10, 17, 8],
+                          [17, 8, 0.05, 10, 0.1, 14]])
+            p = 10 ** (-4) * np.array([[1312, 1696, 5569, 124, 8283, 5886],
+                                       [2329, 4135, 8307, 3736, 1004, 9991],
+                                       [2348, 1451, 3522, 2883, 3047, 6650],
+                                       [4047, 8828, 8732, 5743, 1091, 381]])
+            outer = 0
+            for i in range(4):
+                inner = 0
+                for j in range(4):
+                    inner += a[i, j] * (self.float_position[j] - p[i, j]) ** 2
+                outer += alpha[i] * np.exp(-inner)
+            self.fitness_value = (1.1-outer)/0.839
 
 
 
+        elif self.ff_code == 47:  # Hartmann 6-D
 
+            alpha = np.array([1.0, 1.2, 3.0, 3.2])
+            a = np.array([[10, 3, 17, 3.5, 1.7, 8],
+                          [0.05, 10, 17, 0.1, 8, 14],
+                          [3, 3.5, 1.7, 10, 17, 8],
+                          [17, 8, 0.05, 10, 0.1, 14]])
+            p = 10 ** (-4) * np.array([[1312, 1696, 5569, 124, 8283, 5886],
+                                       [2329, 4135, 8307, 3736, 1004, 9991],
+                                       [2348, 1451, 3522, 2883, 3047, 6650],
+                                       [4047, 8828, 8732, 5743, 1091, 381]])
 
+            outer = 0
+            for i in range(4):
+                inner = 0
+                for j in range(6):
+                    inner += a[i, j] * (self.float_position[j] - p[i, j]) ** 2
+                outer += alpha[i] * np.exp(-inner)
+            self.fitness_value = -outer
 
         return
 

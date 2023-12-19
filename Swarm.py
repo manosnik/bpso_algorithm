@@ -35,16 +35,17 @@ class Swarm:
     def __str__(self):
         for i in range(self.size):
             print(self.population[i])
-        print(f"gbest: {self.g_best.bin}\tgbest_fitness_value :{self.gbest_value}")
+        print(
+            f"gbest: {self.g_best.bin}\t g_best_float : {self.g_best_float_position}\tgbest_fitness_value :{self.gbest_value}")
         return "-------------------------------------------------------------------------------------------------------------"
 
-
-    #TODO add glodal_min attribute
+    # TODO add glodal_min attribute
     def choose_ff(self):
         if self.ff_code == 1:
             self.ff_name = "Eggholder"
             self.bound_min = [-512, -512]
             self.bound_max = [512, 512]
+            self.global_min = [512, 404.2319]
         elif self.ff_code == 2:
             self.ff_name = "Rastring"
             self.bound_min = [-5.12, -5.12]
@@ -53,19 +54,22 @@ class Swarm:
             self.ff_name = "Ackley"
             self.bound_min = [-32.768] * self.dim_of_multidim_fun
             self.bound_max = [32.768] * self.dim_of_multidim_fun
+            self.global_min = [0] * self.dim_of_multidim_fun
         elif self.ff_code == 4:
             self.ff_name = "Rosenbrock"
             self.bound_min = [-5] * self.dim_of_multidim_fun
             self.bound_max = [10] * self.dim_of_multidim_fun
+            self.global_min = [1] * self.dim_of_multidim_fun
         elif self.ff_code == 5:
             self.ff_name = "Dropwave"
             self.bound_min = [-5.12, -5.12]
             self.bound_max = [5.12, 5.12]
+            self.global_min = [0, 0]
         elif self.ff_code == 6:
             self.ff_name = "Bukin N.6"
             self.bound_min = [-15, -3]
             self.bound_max = [-5, 3]
-            self.global_min=[-10,1]
+            self.global_min = [-10, 1]
         elif self.ff_code == 7:
             self.ff_name = "De Jong N.5"
             self.bound_min = [-65.536, -65.536]
@@ -190,6 +194,69 @@ class Swarm:
             self.ff_name = "Colville"
             self.bound_min = [-10, -10, -10, -10]
             self.bound_max = [10, 10, 10, 10]
+            self.global_min=[1, 1, 1, 1]
+        elif self.ff_code == 38:
+            self.ff_name = "Shekel"
+            self.bound_min = [0, 0, 0, 0]
+            self.bound_max = [10, 10, 10, 10]
+            self.global_min = [4, 4, 4, 4]
+        elif self.ff_code == 39:
+            self.ff_name = "Styblinski-Tang"
+            self.bound_min = [-5] * self.dim_of_multidim_fun
+            self.bound_max = [5] * self.dim_of_multidim_fun
+            self.global_min = [-2.903534] * self.dim_of_multidim_fun
+        elif self.ff_code == 40:
+            self.ff_name = "Powell"
+            self.dim_of_multidim_fun=math.ceil(self.dim_of_multidim_fun/4)*4
+            self.bound_min = [-4] * self.dim_of_multidim_fun
+            self.bound_max = [5] * self.dim_of_multidim_fun
+            self.global_min = [0] * self.dim_of_multidim_fun
+        elif self.ff_code == 41:
+            self.ff_name = "Goldstein-Price"
+            self.bound_min = [-2, -2]
+            self.bound_max = [2, 2]
+            self.global_min = [0, -1]
+        elif self.ff_code == 42:
+            self.ff_name = "Forrester"
+            self.bound_min = [0]
+            self.bound_max = [1]
+            self.global_min = None
+        elif self.ff_code == 43:
+            self.ff_name = "Perm d,b"
+            self.bound_min = [-self.dim_of_multidim_fun]*self.dim_of_multidim_fun
+            self.bound_max = [self.dim_of_multidim_fun]*self.dim_of_multidim_fun
+            self.global_min=[]
+            for i in range(self.dim_of_multidim_fun):
+                self.global_min.append(i+1)
+        elif self.ff_code == 44:
+            self.ff_name = "Perm 0,d,b"
+            self.bound_min = [-self.dim_of_multidim_fun] * self.dim_of_multidim_fun
+            self.bound_max = [self.dim_of_multidim_fun] * self.dim_of_multidim_fun
+            self.global_min=[]
+            for i in range(self.dim_of_multidim_fun):
+                self.global_min.append(1/(i + 1))
+
+        elif self.ff_code ==45:
+            self.ff_name="Hartmann 3-D"
+            self.bound_min=[0,0,0]
+            self.bound_max=[1,1,1]
+            self.global_min=[0.114614,0.555649,0.852547]
+
+        elif self.ff_code ==46:
+            self.ff_name="Hartmann 4-D"
+            self.bound_min=[0,0,0,0]
+            self.bound_max=[1,1,1,1]
+            self.global_min=None
+
+        elif self.ff_code ==47:
+            self.ff_name="Hartmann 6-D"
+            self.bound_min=[0,0,0,0,0,0]
+            self.bound_max=[1,1,1,1,1,1]
+            self.global_min=[0.20169, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573]
+
+
+
+
         return
 
     def upgrade_vel_swarm(self):
@@ -225,11 +292,12 @@ class Swarm:
 # ##TEST CODE
 #
 #
-# swarm = Swarm(size=30, ff_code=1, number_of_decimals=2)
+# swarm = Swarm(size=30, ff_code=1, number_of_decimals=4,omega_generator=0.6,c1_generator=0.4,c2_generator=0.4,mutation_mode=1,v_ones_max_percentage=0.2,dim_of_multidim_fun=4)
 #
-# swarm.evaluate_fitness_swarm()
-# swarm.upgrade_pbest_swarm()
-# swarm.upgrade_gbest()
-# print(swarm)
-# swarm.upgrade_vel_swarm()
-# swarm.upgrade_position_swarm()
+# for i in range(10):
+#     swarm.evaluate_fitness_swarm()
+#     swarm.upgrade_pbest_swarm()
+#     swarm.upgrade_gbest()
+#     print(swarm)
+#     swarm.upgrade_vel_swarm()
+#     swarm.upgrade_position_swarm()
