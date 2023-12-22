@@ -507,7 +507,7 @@ class Particle:
             self.fitness_value = term1 + term2 + term3 + term4 + term5 + term6
 
         elif self.ff_code == 38:  # Shekel
-            m = 10
+            m = 10                                          #if it's changed we have to change the global_min_value too
             b = 0.1 * np.array([1, 2, 2, 4, 4, 6, 3, 7, 5, 5])
             c = np.array([[4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
                           [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
